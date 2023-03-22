@@ -1,11 +1,13 @@
 import { EOL } from "os";
 import { listenerCount } from "process";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol } from "vscode";
+import { interpret } from "xstate";
 import NotNullArray from "../utils/NotNullArray";
 import { trimMultipleWhitespaces } from "../utils/Utils";
 import Division from "./Division";
 import Parsable from "./Parsable";
 import ProcedureSection from "./procedure/ProcedureSection";
+import { statements } from "./procedure/Statements";
 import Section from "./Section";
 import { ConfigurationSection, FileSection, InputOutputSection, LinkageSection, LocalStorageSection, WorkingStorageSection } from "./Sections";
 
@@ -144,23 +146,25 @@ export class ProcedureDivision extends Division implements Parsable<DocumentSymb
     sections: Array<ProcedureSection> = [];
 
     parse(symbol: DocumentSymbol): Diagnostic[] {
+        const diagnostics = new NotNullArray<Array<Diagnostic>>();
         const lines = this.program.document.getText().split(EOL);
         symbol.children.forEach((child) => {
             const section = new ProcedureSection(this.program);
             section.name = child.name;
             let i = 0;
-            while(true) {
+            while (true) {
                 const line = lines[child.range.start.line - 1 - i]?.trimStart();
-                if(!line || !line.startsWith("*")) {
+                if (!line || !line.startsWith("*")) {
                     break;
                 }
-                if(line.startsWith("*")) {
+                if (line.startsWith("*")) {
                     section.annotations.push(trimMultipleWhitespaces(line.substring(1).trim()));
                 }
                 i++;
             }
             this.sections.push(section);
         });
-        return [];
+        this.sections.forEach((section, index) => { diagnostics.push(section.parse(symbol.children[index])); });
+        return diagnostics.asArray().flat();
     }
 }

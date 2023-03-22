@@ -1,14 +1,49 @@
 import { find } from 'lodash';
 import { EOL } from 'os';
-import { commands, Diagnostic, DocumentSymbol, ExtensionContext, extensions, Hover, languages, MarkdownString, ProviderResult, TextDocument, window, workspace } from 'vscode';
+import { commands, Diagnostic, DocumentSymbol, ExtensionContext, extensions, Hover, languages, MarkdownString, Position, ProviderResult, Range, TextDocument, window, workspace } from 'vscode';
+import { interpret } from 'xstate';
 import Group from './processing/data/Group';
 import Table from './processing/data/Table';
 import Variable from './processing/data/Variable';
+import { statements } from './processing/procedure/Statements';
+import Token from './processing/procedure/tokens/Token';
 import Program from './processing/Program';
 
 let program: Program | undefined;
 
 export function activate(context: ExtensionContext) {
+    //const interpreter = interpret(statements.get("ADD")!);
+    //interpreter.start();
+    //interpreter.onTransition((state) => {
+    //    if (!state.changed && state._event.name !== "xstate.init") {
+    //        console.error(`Invalid transition from ${JSON.stringify(state)}`);
+    //    }
+    //    else {
+    //        console.log(state.tags);
+    //        console.log(state.done);
+    //    }
+    //});
+    //console.log(interpreter.send({
+    //    type: "IDENTIFIER",
+    //    token: new Token("ADD", new Range(new Position(0, 0), new Position(0, 0)), "")
+    //}));
+    //console.log(interpreter.send({
+    //    type: "KEYWORD",
+    //    token: new Token("ADD", new Range(new Position(0, 0), new Position(0, 0)), "")
+    //}));
+    //console.log(interpreter.send({
+    //    type: "CONSTANT",
+    //    token: new Token("ADD", new Range(new Position(0, 0), new Position(0, 0)), "")
+    //}));;
+    //console.log(interpreter.send({
+    //    type: "KEYWORD",
+    //    token: new Token("ADD", new Range(new Position(0, 0), new Position(0, 0)), "")
+    //}));
+    //console.log(interpreter.send({
+    //    type: "IDENTIFIER",
+    //    token: new Token("ADD", new Range(new Position(0, 0), new Position(0, 0)), "")
+    //}));
+    //console.log(interpreter.getSnapshot().value);
     languages.registerHoverProvider("COBOL", {
         provideHover(document, position, token): ProviderResult<Hover> {
             const variables = program?.programId?.dataDivision?.workingStorageSection?.variables;

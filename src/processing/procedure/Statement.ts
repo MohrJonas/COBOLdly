@@ -1,7 +1,6 @@
+import Token from "./tokens/Token";
+
 export default class Statement {
 
-    constructor() {
-        
-    }
-
+    constructor(public tokens: Array<Token>) {}
 }
