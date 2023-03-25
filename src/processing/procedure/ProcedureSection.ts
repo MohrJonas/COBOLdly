@@ -1,7 +1,8 @@
-import { first, isFinite, isSafeInteger } from "lodash";
+import { first, flatMapDeep, isFinite, isSafeInteger } from "lodash";
 import { EOL } from "os";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol, languages, Position, Range } from "vscode";
 import NotNullArray from "../../utils/NotNullArray";
+import Group from "../data/Group";
 import Parsable from "../Parsable";
 import Program from "../Program";
 import Section from "../Section";
@@ -105,15 +106,21 @@ export default class ProcedureSection extends Section implements Parsable<Docume
         else {
             let variableNames: Array<string> = [];
             let sectionNames: Array<string> = [];
-            const variables = this.program.programId?.dataDivision?.workingStorageSection?.variables;
+            const workingStoragevariables = this.program?.programId?.dataDivision?.workingStorageSection?.variables;
+            const linkageSectionsvariables = this.program?.programId?.dataDivision?.linkageSection?.variables;
+            const localStoragevariables = this.program?.programId?.dataDivision?.localStorageSection?.variables;
             const sections = this.program.programId?.procedureDivision?.sections;
-            if (variables) {
-                variableNames.push(
-                    ...variables
-                        .filter((variable) => { return variable.name; })
-                        .map((variable) => { return variable.name!.toUpperCase(); })
-                );
-            }
+            const flatVariables = flatMapDeep([...(workingStoragevariables ?? []), ...(linkageSectionsvariables ?? []), ...(localStoragevariables ?? [])], (variable) => {
+                if (variable instanceof Group) {
+                    return [variable, ...variable.children];
+                }
+                return [variable];
+            });
+            variableNames.push(
+                ...flatVariables
+                    .filter((variable) => { return variable.name; })
+                    .map((variable) => { return variable.name!.toUpperCase(); })
+            );
             if (sections) {
                 sectionNames.push(
                     ...sections
@@ -121,7 +128,8 @@ export default class ProcedureSection extends Section implements Parsable<Docume
                         .map((section) => { return section.name!.toUpperCase(); })
                 );
             }
-            if (variableNames.includes(raw)) {
+            //Check if subscript
+            if (variableNames.includes(raw.replace(/\([0-9a-z,-]+\)/i, "").replace(",", ""))) {
                 return TokenType.VARIABLE_IDENTIFIER;
             }
             else if (sectionNames.includes(raw)) {

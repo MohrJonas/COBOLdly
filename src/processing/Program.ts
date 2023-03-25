@@ -19,7 +19,7 @@ export default class Program implements Parsable<void> {
             return /identification division/i.test(trimMultipleWhitespaces(symbol.name));
         });
         const programIdSymbol = find(this.symbols, (symbol) => {
-            return /program-id. ([a-z0-9-]+)/i.test(trimMultipleWhitespaces(symbol.name));
+            return /program-id. ([a-z0-9-"]+)/i.test(trimMultipleWhitespaces(symbol.name));
         });
         if(identificationDivisionSymbol) {
             this.identificationDivision = new IdentificationDivision(this);

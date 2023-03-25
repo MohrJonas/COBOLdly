@@ -34,6 +34,13 @@ export default class Table implements Parsable<DocumentSymbol> {
                 DiagnosticSeverity.Error
             )]);
         }
+        if(!trimmedLine.endsWith(".")) {
+            diagnostics.push([new Diagnostic(
+                symbol.range,
+                `Missing period`,
+                DiagnosticSeverity.Error
+            )]);
+        }
         else {
             const groups = trimmedLine.match(Table.pattern)!;
             this.level = parseInt(groups[1]);

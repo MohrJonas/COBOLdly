@@ -16,6 +16,15 @@
   "activationEvents": [
     "onLanguage:COBOL"
   ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "coboldly.dump_parsetree",
+        "title": "Dump parsetree",
+        "shortTitle": "Dump tree"
+      }
+    ]
+  },
   "main": "./dist/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -47,6 +56,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "got": "^12.6.0",
     "lodash": "^4.17.21",
     "xstate": "^4.37.0"
   },
