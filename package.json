@@ -2,13 +2,18 @@
   "name": "coboldly",
   "displayName": "COBOLdly",
   "description": "To boldly COBOL where no one has COBOLed before",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "publisher": "Jonas Mohr",
   "engines": {
     "vscode": "^1.76.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MohrJonas/COBOLdly"
+  },
   "categories": [
-    "Other"
+    "Linters",
+    "Programming Languages"
   ],
   "author": {
     "name": "Jonas Mohr"
@@ -20,8 +25,8 @@
     "commands": [
       {
         "command": "coboldly.dump_parsetree",
-        "title": "Dump parsetree",
-        "shortTitle": "Dump tree"
+        "title": "Dump AST to console",
+        "shortTitle": "Dump AST"
       }
     ]
   },
@@ -35,7 +40,8 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -43,12 +49,14 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@types/vscode": "^1.76.0",
-    "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.53.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
     "@vscode/test-electron": "^2.2.3",
     "@vscode/vsce": "^2.18.0",
     "eslint": "^8.34.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "glob": "^8.1.0",
+    "husky": "^8.0.0",
     "mocha": "^10.2.0",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
@@ -58,6 +66,7 @@
   "dependencies": {
     "got": "^12.6.0",
     "lodash": "^4.17.21",
+    "toml": "^3.0.0",
     "xstate": "^4.37.0"
   },
   "icon": "icon.png"

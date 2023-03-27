@@ -6,14 +6,14 @@
       * Taken from https://github.com/lauryndbrown/Cisp/blob/master/lisp.cbl, licenses under the MIT license
       ******************************************************************
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. LISP.
+       PROGRAM-ID. "LISP".
        DATA DIVISION. 
        FILE SECTION.
        SELECT FPRINTER ASSIGN to "./printer.dat"
            ORGANIZATION LINE SEQUENTIAL
        ACCESS SEQUENTIAL.
        WORKING-STORAGE SECTION.
-       01 WS-SYMBOL-TABLE-INDEX PIC 9(4).
+       01 WS-SYMBOL-TABLE-INDEX PIC 9(4) VALUE "Hello".
        01 WS-CURR-COMMAND PIC X(20).
        01 WS-CURRENT-VALUE PIC X(20).
        01 WS-CURRENT-VALUE-NUMERIC *> @cbl-ignore
@@ -54,7 +54,7 @@
            02 LS-SYMBOL-LEN PIC 9(2) OCCURS 100 TIMES.
        PROCEDURE DIVISION USING LS-LISP-SYMBOLS.
        MAIN-PROCEDURE.
-           ADD 1
+           ADD 1 TO 2
            PERFORM INIT-CALL-STACK-PROCEDURE.
       ********* EVALUTE LISP
            PERFORM VARYING WS-SYMBOL-TABLE-INDEX FROM 1 BY 1 UNTIL

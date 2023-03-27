@@ -5,12 +5,12 @@ import Parsable from "../Parsable";
 
 export default class File implements Parsable<DocumentSymbol> {
 
-    name!: string;
+	name!: string;
 
-    parse(symbol: DocumentSymbol): Diagnostic[] {
-        const diagnostics: NotNullArray<Array<Diagnostic>> = new NotNullArray();
-        const trimmedName = trimMultipleWhitespaces(symbol.name);
-        this.name = trimmedName;
-        return diagnostics.asArray().flat();
-    }
+	parse(symbol: DocumentSymbol): Diagnostic[] {
+		const diagnostics: NotNullArray<Array<Diagnostic>> = new NotNullArray();
+		const trimmedName = trimMultipleWhitespaces(symbol.name);
+		this.name = trimmedName;
+		return diagnostics.asArray().flat();
+	}
 }
