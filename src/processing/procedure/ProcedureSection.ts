@@ -1,4 +1,4 @@
-import { concat, find, first, flatMapDeep, isEmpty, join, map, merge } from "lodash";
+import { find, first, flatMapDeep, isEmpty } from "lodash";
 import { EOL } from "os";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol, Position, Range } from "vscode";
 import NotNullArray from "../../utils/NotNullArray";
@@ -106,8 +106,8 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 			if (interpreter) {
 				const response = interpreter.send({ token: token, type: asEventString(token.type) });
 
-				if(!response.changed) {
-					if(response.tags.has("final") || response.done) {
+				if (!response.changed) {
+					if (response.tags.has("final") || response.done) {
 						this.statements.push(new Statement(tokens[tokenStartIndex!].raw, tokens.slice(tokenStartIndex!, index)));
 					}
 					else {
@@ -134,6 +134,12 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 				}
 			}
 		});
+		if (interpreter && !(interpreter.getSnapshot().tags.has("final") || interpreter.getSnapshot().done)) {
+			const transitions = interpreter.getSnapshot().configuration.map((config) => { return config.transitions; }).flat().map((transition) => { return transition.eventType; });
+			diagnostics.push([
+				new Diagnostic(t.range, isEmpty(transitions) ? "Missing token(s)" : `Missing token(s), expected ${transitions.join(" | ")}`, DiagnosticSeverity.Error)
+			]);
+		}
 		//console.log(this.statements);
 		return diagnostics.asArray().flat();
 	}
@@ -180,7 +186,7 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 				);
 			}
 			//Throw out subscript
-			if (variableNames.includes(raw.replace(/\([0-9a-z,-:()]+\)/i, "")/*.replace(",", "")*/)) {
+			if (variableNames.includes(raw.replace(/\([0-9a-z,-:()]+\)/i, ""))) {
 				return TokenType.VARIABLE_IDENTIFIER;
 			}
 			else if (sectionNames.includes(raw)) {
