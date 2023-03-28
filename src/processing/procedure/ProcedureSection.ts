@@ -102,7 +102,8 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 		}
 		let interpreter: Interpreter<Record<string, never>, Record<string, never>, { type: string, token: Token }> | undefined;
 		let tokenStartIndex: number | undefined;
-		tokens.forEach((token, index) => {
+		for(let index = 0; index < tokens.length; index++) {
+			const token = tokens[index];
 			if (interpreter) {
 				const response = interpreter.send({ token: token, type: asEventString(token.type) });
 
@@ -117,6 +118,7 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 						]);
 					}
 					interpreter = undefined;
+					index--;
 				}
 			} else {
 				const machine = find(Array.from(Statements.entries()), (mapEntry) => { return mapEntry[0](token); })?.[1];
@@ -133,7 +135,7 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 					]);
 				}
 			}
-		});
+		}
 		if (interpreter && !(interpreter.getSnapshot().tags.has("final") || interpreter.getSnapshot().done)) {
 			const transitions = interpreter.getSnapshot().configuration.map((config) => { return config.transitions; }).flat().map((transition) => { return transition.eventType; });
 			diagnostics.push([
