@@ -1,4 +1,4 @@
-import { find, first, flatMapDeep, isEmpty } from "lodash";
+import { find, first, flatMapDeep, isEmpty, iteratee } from "lodash";
 import { EOL } from "os";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol, Position, Range } from "vscode";
 import NotNullArray from "../../utils/NotNullArray";
@@ -106,9 +106,8 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 			const token = tokens[index];
 			if (interpreter) {
 				const response = interpreter.send({ token: token, type: asEventString(token.type) });
-
 				if (!response.changed) {
-					if (response.tags.has("final") || response.done) {
+					if (response.tags.has("final")) {
 						this.statements.push(new Statement(tokens[tokenStartIndex!].raw, tokens.slice(tokenStartIndex!, index)));
 					}
 					else {
@@ -136,13 +135,17 @@ export default class ProcedureSection extends Section implements Parsable<Docume
 				}
 			}
 		}
-		if (interpreter && !(interpreter.getSnapshot().tags.has("final") || interpreter.getSnapshot().done)) {
-			const transitions = interpreter.getSnapshot().configuration.map((config) => { return config.transitions; }).flat().map((transition) => { return transition.eventType; });
-			diagnostics.push([
-				new Diagnostic(t.range, isEmpty(transitions) ? "Missing token(s)" : `Missing token(s), expected ${transitions.join(" | ")}`, DiagnosticSeverity.Error)
-			]);
+		if(interpreter) {
+			if(interpreter.getSnapshot().tags.has("final")) {
+				this.statements.push(new Statement(tokens[tokenStartIndex!].raw, tokens.slice(tokenStartIndex!)));
+			}
+			else {
+				const transitions = interpreter.getSnapshot().configuration.map((config) => { return config.transitions; }).flat().map((transition) => { return transition.eventType; });
+				diagnostics.push([
+					new Diagnostic(t.range, isEmpty(transitions) ? "Missing token(s)" : `Missing token(s), expected ${transitions.join(" | ")}`, DiagnosticSeverity.Error)
+				]);
+			}
 		}
-		//console.log(this.statements);
 		return diagnostics.asArray().flat();
 	}
 

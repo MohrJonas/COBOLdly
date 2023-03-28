@@ -12,7 +12,7 @@ export const CBL01: Rule = (program: Program) => {
 	const statements = flatMap(sections, (section) => { return section.statements; });
 	const tokens = flatMap(statements, (statement) => { return statement.tokens; });
 	const keywords = filter(tokens, (token) => { return token.type === TokenType.KEYWORD; });
-	const errors = filter(keywords, (keyword) => { return keyword.raw === keyword.raw.toUpperCase(); });
+	const errors = filter(keywords, (keyword) => { return keyword.raw !== keyword.raw.toUpperCase(); });
 	return errors.map((error) => {
 		return new Diagnostic(
 			error.range,

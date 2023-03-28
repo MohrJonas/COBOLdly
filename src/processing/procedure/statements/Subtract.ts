@@ -3,15 +3,15 @@ import Token from "../tokens/Token";
 import { TokenType } from "../tokens/TokenType";
 import { Trigger } from "../Trigger";
 
-export const Add: { key: Trigger, value: StateMachine<Record<string, never>, Record<string, never>, { type: string, token: Token }> } = {
-	key: (token: Token) => { return token.type === TokenType.KEYWORD && token.raw === "ADD"; },
+export const Subtract: { key: Trigger, value: StateMachine<Record<string, never>, Record<string, never>, { type: string, token: Token }> } = {
+	key: (token: Token) => { return token.type === TokenType.KEYWORD && token.raw === "SUBTRACT"; },
 	value: createMachine({
 		predictableActionArguments: true,
-		id: "ADD",
-		initial: "add",
+		id: "SUBTRACT",
+		initial: "subtract",
 		/* eslint-disable @typescript-eslint/naming-convention */
 		states: {
-			add: {
+			subtract: {
 				on: {
 					VARIABLE_IDENTIFIER: { target: "identifier0" },
 					CONSTANT: { target: "constant0" }
