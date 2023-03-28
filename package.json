@@ -2,7 +2,7 @@
   "name": "coboldly",
   "displayName": "COBOLdly",
   "description": "To boldly COBOL where no one has COBOLed before",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "publisher": "Jonas Mohr",
   "engines": {
     "vscode": "^1.76.0"
