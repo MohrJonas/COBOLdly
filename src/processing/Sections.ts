@@ -1,3 +1,6 @@
+import { readdirSync } from "fs";
+import { find } from "lodash";
+import { join } from "path";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol, SymbolKind } from "vscode";
 import NotNullArray from "../utils/NotNullArray";
 import { trimMultipleWhitespaces } from "../utils/Utils";
@@ -83,6 +86,39 @@ export class WorkingStorageSection extends Section implements Parsable<DocumentS
 				this.variables.push(variable);
 				break;
 			}
+			case SymbolKind.File: {
+				if (this.program.configuration?.copybooks?.ignoreMissing) {
+					break;
+				}
+				else if (this.program.configuration?.copybooks?.directories) {
+					const copybookName = symbol.name.replace(/copy/i, "").replace(/"/g, "").trim();
+					const copybookDirectory = find(this.program.configuration.copybooks.directories, (dir) => {
+						const absolutePath = join(this.program.configuration!.file, dir);
+						return readdirSync(absolutePath).includes(copybookName);
+					});
+					if (!copybookDirectory) {
+						diagnostics.push([
+							new Diagnostic(symbol.range, `Unable to find copybook ${copybookName} in directories [${this.program.configuration.copybooks.directories.join(", ")}]`)
+						]);
+					}
+					//TODO fix this at some later date
+					//else {
+					//	const documentSymbol = new DocumentSymbol(copybookName, "", SymbolKind.Method, new Range(new Position(0, 0), new Position(0, 0)), new Range(new Position(0, 0), new Position(0, 0)));
+					//	commands.executeCommand<Array<DocumentSymbol>>("vscode.executeDocumentSymbolProvider", Uri.file(join(this.program.configuration!.file, copybookDirectory, copybookName))).then((symbols) => {
+					//		documentSymbol.children.push(...symbols);
+					//	}).then(() => {
+					//		console.log(documentSymbol);
+					//		diagnostics.push(this.parse(documentSymbol));
+					//	});
+					//}
+				}
+				else {
+					diagnostics.push([
+						new Diagnostic(symbol.range, "No copybooks defined")
+					]);
+				}
+				break;
+			}
 			default: {
 				diagnostics.push([new Diagnostic(
 					symbol.range,
@@ -93,6 +129,15 @@ export class WorkingStorageSection extends Section implements Parsable<DocumentS
 			}
 			}
 		});
+		if(this.program.configuration?.wow?.handles) {
+			this.program.configuration.wow.handles.forEach((handle) => {
+				const variable = new Variable(this.program);
+				variable.level = 1;
+				variable.name = handle;
+				variable.type = "WOWHDL";
+				this.variables.push(variable);
+			});
+		}
 		return diagnostics.asArray().flat();
 	}
 }

@@ -5,13 +5,14 @@ import { trimMultipleWhitespaces } from "../utils/Utils";
 import { IdentificationDivision } from "./Divisions";
 import Parsable from "./Parsable";
 import ProgramId from "./identification/ProgramId";
+import { CobolConfiguration } from "../CobolConfiguration";
 
 export default class Program implements Parsable<void> {
 
 	identificationDivision: IdentificationDivision | undefined;
 	programId: ProgramId | undefined;
 
-	constructor(public symbols: Array<DocumentSymbol>, public document: TextDocument) { }
+	constructor(public symbols: Array<DocumentSymbol>, public document: TextDocument, public configuration: CobolConfiguration | undefined) { }
 
 	parse(): Diagnostic[] {
 		const diagnostics = new NotNullArray<Array<Diagnostic>>();

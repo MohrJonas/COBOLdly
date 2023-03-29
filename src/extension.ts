@@ -10,9 +10,10 @@ import { keywords } from "./processing/procedure/tokens/Keyword";
 import Program from "./processing/Program";
 import * as toml from "toml";
 import { rules as Rules } from "./validating/rules/Rules";
+import { CobolConfiguration } from "./CobolConfiguration";
 
 let program: Program | undefined;
-let rules: Array<string> | undefined;
+let configuration: CobolConfiguration | undefined;
 
 export function activate(context: ExtensionContext) {
 	//const interpreter = interpret(statements.get("ADD")!);
@@ -55,7 +56,9 @@ export function activate(context: ExtensionContext) {
 			window.showErrorMessage("No COBOL program open");
 		}
 	}));
-	//TODO make case insensitive
+	context.subscriptions.push(commands.registerCommand("coboldly.reload_config", () => {
+		loadConfig();
+	}));
 	languages.registerHoverProvider("COBOL", {
 		provideHover(document, position): ProviderResult<Hover> {
 			const workingStoragevariables = program?.programId?.dataDivision?.workingStorageSection?.variables;
@@ -116,29 +119,7 @@ export function activate(context: ExtensionContext) {
 			return contents.length === 0 ? undefined : { contents: contents };
 		},
 	});
-	if (!workspace.workspaceFolders) {
-		window.showWarningMessage("No workspace folder open, only minimal highlighting is supported");
-	}
-	else {
-		const ruleFilePath = find(workspace.workspaceFolders, (folder) => {
-			const ruleFilePath = path.resolve(folder.uri.fsPath, ".cblconfig");
-			return existsSync(ruleFilePath);
-		});
-		if (ruleFilePath) {
-			try {
-				const data = toml.parse(readFileSync(path.resolve(ruleFilePath.uri.fsPath, ".cblconfig"), "utf-8"));
-				rules = data["rules"];
-				window.showInformationMessage("Successfully loaded .cblconfig");
-			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			catch (e: any) {
-				window.showErrorMessage(`Error parsing .cblconfig on line ${e.line}, column ${e.column}: ${e.message}`);
-			}
-		}
-		else {
-			window.showWarningMessage("No .cblconfig in workspace folder(s)");
-		}
-	}
+	loadConfig();
 	if (extensions.getExtension("bitlang.cobol")) {
 		const diagnostics = languages.createDiagnosticCollection("COBOLdly");
 		context.subscriptions.push(window.onDidChangeActiveTextEditor((editor) => {
@@ -172,12 +153,39 @@ export function activate(context: ExtensionContext) {
 	}
 }
 
+export function loadConfig() {
+	if (!workspace.workspaceFolders) {
+		window.showWarningMessage("No workspace folder open, only minimal highlighting is supported");
+	}
+	else {
+		const ruleFilePath = find(workspace.workspaceFolders, (folder) => {
+			const ruleFilePath = path.resolve(folder.uri.fsPath, ".cblconfig");
+			return existsSync(ruleFilePath);
+		});
+		if (ruleFilePath) {
+			try {
+				const data = toml.parse(readFileSync(path.resolve(ruleFilePath.uri.fsPath, ".cblconfig"), "utf-8"));
+				configuration = Object.assign(data, { file: ruleFilePath.uri.fsPath });
+				window.showInformationMessage(`Successfully loaded .cblconfig from ${path.resolve(ruleFilePath.uri.fsPath, ".cblconfig")}`);
+			}
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			catch (e: any) {
+				window.showErrorMessage(`Error parsing .cblconfig on line ${e.line}, column ${e.column}: ${e.message}`);
+			}
+		}
+		else {
+			window.showWarningMessage("No .cblconfig in workspace folder(s)");
+			configuration = undefined;
+		}
+	}
+}
+
 async function parseDocument(document: TextDocument): Promise<Array<Diagnostic>> {
 	const symbols = await commands.executeCommand<Array<DocumentSymbol>>("vscode.executeDocumentSymbolProvider", document.uri);
-	program = new Program(symbols, document);
+	program = new Program(symbols, document, configuration);
 	const diagnostics = program.parse();
-	if (rules) {
-		rules.forEach((rule) => {
+	if (configuration?.validation?.rules) {
+		configuration?.validation?.rules.forEach((rule) => {
 			if (Rules[rule]) {
 				diagnostics.push(...Rules[rule](program!));
 			}
@@ -187,6 +195,6 @@ async function parseDocument(document: TextDocument): Promise<Array<Diagnostic>>
 	return diagnostics.filter((diagnostic) => { return !lines[diagnostic.range.start.line].includes("*> @cbl-ignore"); });
 }
 
-export function deactivate() { 
+export function deactivate() {
 	//TODO
 }

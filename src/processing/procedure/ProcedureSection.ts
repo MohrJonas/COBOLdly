@@ -1,4 +1,4 @@
-import { find, first, flatMapDeep, isEmpty, iteratee } from "lodash";
+import { find, first, flatMapDeep, isEmpty } from "lodash";
 import { EOL } from "os";
 import { Diagnostic, DiagnosticSeverity, DocumentSymbol, Position, Range } from "vscode";
 import NotNullArray from "../../utils/NotNullArray";

@@ -27,6 +27,11 @@
         "command": "coboldly.dump_parsetree",
         "title": "Dump AST to console",
         "shortTitle": "Dump AST"
+      },
+      {
+        "command": "coboldly.reload_config",
+        "title": "Reload coboldly config",
+        "shortTitle": "Reload config"
       }
     ]
   },
