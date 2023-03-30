@@ -17,28 +17,58 @@ export const Call: { key: Trigger, value: StateMachine<Record<string, never>, Re
 					LITERAL: { target: "literal0" }
 				}
 			},
-			using: {
-				on: {
-					CONSTANT: { target: "using" },
-					LITERAL: { target: "using" },
-					VARIABLE_IDENTIFIER: { target: "using" },
-					KEYWORD: { target: "giving", cond: (_, event) => { return event.token.raw === "GIVING"; } }
-				},
-				tags: "final"
-			},
-			giving: {
-				on: {
-					VARIABLE_IDENTIFIER: { target: "giving" },
-					KEYWORD: { target: "using", cond: (_, event) => { return event.token.raw === "USING"; } }
-				},
-				tags: "final"
-			},
 			literal0: {
 				on: {
 					KEYWORD: [
 						{ target: "using", cond: (_, event) => { return event.token.raw === "USING"; } },
 						{ target: "giving", cond: (_, event) => { return event.token.raw === "GIVING"; } },
 					]
+				},
+				tags: "final"
+			},
+			using: {
+				on: {
+					CONSTANT: { target: "using1" },
+					LITERAL: { target: "using1" },
+					VARIABLE_IDENTIFIER: { target: "using1" },
+					KEYWORD: { target: "giving", cond: (_, event) => { return event.token.raw === "GIVING"; } }
+				},
+			},
+			using1: {
+				on: {
+					CONSTANT: { target: "using2" },
+					LITERAL: { target: "using2" },
+					VARIABLE_IDENTIFIER: { target: "using2" },
+					KEYWORD: { target: "giving", cond: (_, event) => { return event.token.raw === "GIVING"; } }
+				},
+				tags: "final"
+			},
+			using2: {
+				on: {
+					CONSTANT: { target: "using1" },
+					LITERAL: { target: "using1" },
+					VARIABLE_IDENTIFIER: { target: "using1" },
+					KEYWORD: { target: "giving", cond: (_, event) => { return event.token.raw === "GIVING"; } }
+				},
+				tags: "final"
+			},
+			giving: {
+				on: {
+					VARIABLE_IDENTIFIER: { target: "giving1" },
+					KEYWORD: { target: "using", cond: (_, event) => { return event.token.raw === "USING"; } }
+				},
+			},
+			giving1: {
+				on: {
+					VARIABLE_IDENTIFIER: { target: "giving2" },
+					KEYWORD: { target: "using", cond: (_, event) => { return event.token.raw === "USING"; } }
+				},
+				tags: "final"
+			},
+			giving2: {
+				on: {
+					VARIABLE_IDENTIFIER: { target: "giving1" },
+					KEYWORD: { target: "using", cond: (_, event) => { return event.token.raw === "USING"; } }
 				},
 				tags: "final"
 			}
